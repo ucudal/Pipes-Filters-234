@@ -2,7 +2,8 @@
   <PropertyGroup>
     <AssemblyName>PipesAndFilters</AssemblyName>
     <TargetFramework>net8.0</TargetFramework>
-    <LangVersion>6</LangVersion>
+    <LangVersion>10</LangVersion>
+    <UserSecretsId>50e04cc6-680a-4534-9ab1-161a016b56c2</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\PII_TwitterApi\src\Library\Library.csproj" />

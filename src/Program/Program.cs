@@ -1,22 +1,35 @@
 ﻿using System;
-using CompAndDel.Pipes;
-using CompAndDel.Filters;
+using CompAndDel;                // Contiene las interfaces y clases base (IPipe, IFilter, etc.)
+using CompAndDel.Filters;        // Contiene los filtros como FilterNegative, FilterGreyscale, etc.
+using CompAndDel.Pipes;          // Contiene los pipes como PipeSerial, PipeNull
 
-namespace CompAndDel
+
+namespace Program
 {
     class Program
     {
         static void Main(string[] args)
         {
-            PipeNull pipeNull = new PipeNull();
-            PipeSerial pipeSerial2 = new PipeSerial(new FilterNegative(), pipeNull);
-            PipeSerial pipeSerial1 = new PipeSerial(new FilterGreyscale(), pipeSerial2);
-
+            // Cargar imagen
             PictureProvider provider = new PictureProvider();
-            IPicture picture = provider.GetPicture(@"luke.jpg");
+            IPicture picture = provider.GetPicture(@"C:\repos\PII_Pipes_Filters\luke.jpg"); // Cambiá el path a tu imagen
 
-            IPicture result = pipeSerial1.Send(picture);
-            provider.SavePicture(result, @"luke1.jpg");
+            // 2️ Crear los filtros que querés aplicar
+            IFilter filter1 = new FilterNegative();  // Filtro negativo
+            IFilter filter2 = new FilterGreyscale(); // Filtro escala de grises
+
+            // Crear los pipes en orden inverso
+            IPipe pipeNull = new PipeNull();                     // Último pipe que no hace nada
+            IPipe pipe2 = new PipeSerial(filter2, pipeNull);     // Segundo tramo
+            IPipe pipe1 = new PipeSerial(filter1, pipe2);        // Primer tramo
+
+            // Ejecutar la secuencia de Pipes & Filters
+            IPicture result = pipe1.Send(picture);
+
+            // Guardar el resultado final
+            provider.SavePicture(result, @"C:\repos\PII_Pipes_Filters\resultado.jpg");
+
+            Console.WriteLine("✅ Imagen procesada y guardada correctamente.");
         }
     }
 }

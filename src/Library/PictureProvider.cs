@@ -1,11 +1,13 @@
-using System.Drawing;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using System;
 
 namespace CompAndDel
 {
     /// <summary>
     /// Esta clase permite leer y guardar imágenes desde archivos.
+    /// Compatible con .NET 6.0 y ImageSharp 2.1.3
     /// </summary>
     public class PictureProvider
     {
@@ -13,21 +15,26 @@ namespace CompAndDel
         /// Lee una imagen desde un archivo.
         /// </summary>
         /// <param name="path">El path del archivo desde el cual leer la imagen.</param>
-        /// <returns>La imagen leida.</returns>
+        /// <returns>La imagen leída.</returns>
         public IPicture GetPicture(string path)
         {
             Picture picture = new Picture(1, 1);
-            using (var image = Image.Load<Rgba32>(path))
+
+            // Cargamos la imagen como Rgba32 (válido en ImageSharp 2.1.3)
+            using (Image<Rgba32> image = Image.Load<Rgba32>(path))
             {
                 picture.Resize(image.Width, image.Height);
+
                 for (int h = 0; h < image.Height; h++)
                 {
-                    for (int w = 0; w <image.Width; w++)
+                    for (int w = 0; w < image.Width; w++)
                     {
-                        picture.SetColor(w, h, System.Drawing.Color.FromArgb(image[w, h].A, image[w, h].R, image[w, h].G, image[w, h].B));
+                        Rgba32 pixel = image[w, h];
+                        picture.SetColor(w, h, System.Drawing.Color.FromArgb(pixel.A, pixel.R, pixel.G, pixel.B));
                     }
                 }
             }
+
             return picture;
         }
 
@@ -40,17 +47,20 @@ namespace CompAndDel
         {
             int width = picture.Width;
             int height = picture.Height;
-            using(Image<Rgba32> image = new Image<Rgba32>(width, height)) // creates a new image with all the pixels set as transparent
+
+            // Creamos la imagen en memoria
+            using (Image<Rgba32> image = new Image<Rgba32>(width, height))
             {
-                for (int h = 0; h < picture.Height; h++)
+                for (int h = 0; h < height; h++)
                 {
-                    for (int w = 0; w < picture.Width; w++)
+                    for (int w = 0; w < width; w++)
                     {
-                        System.Drawing.Color c = picture.GetColor(w, h);
+                        var c = picture.GetColor(w, h);
                         image[w, h] = new Rgba32(c.R, c.G, c.B, c.A);
                     }
                 }
-                image.Save(path);
+
+                image.Save(path); // Guardamos la imagen en disco
             }
         }
     }
