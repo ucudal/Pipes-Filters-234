@@ -1,8 +1,7 @@
 ﻿using System;
-using CompAndDel;                // Contiene las interfaces y clases base (IPipe, IFilter, etc.)
-using CompAndDel.Filters;        // Contiene los filtros como FilterNegative, FilterGreyscale, etc.
-using CompAndDel.Pipes;          // Contiene los pipes como PipeSerial, PipeNull
-
+using CompAndDel;                
+using CompAndDel.Filters;        
+using CompAndDel.Pipes;          
 
 namespace Program
 {
@@ -10,26 +9,32 @@ namespace Program
     {
         static void Main(string[] args)
         {
-            // Cargar imagen
+            // Cargar la imagen original
             PictureProvider provider = new PictureProvider();
-            IPicture picture = provider.GetPicture(@"C:\repos\PII_Pipes_Filters\luke.jpg"); // Cambiá el path a tu imagen
+            IPicture picture = provider.GetPicture(@"C:\repos\PII_Pipes_Filters\luke.jpg"); // Cambiá al path de tu imagen
 
-            // 2️ Crear los filtros que querés aplicar
-            IFilter filter1 = new FilterNegative();  // Filtro negativo
-            IFilter filter2 = new FilterGreyscale(); // Filtro escala de grises
+            // Crear los filtros
+            IFilter filter1 = new FilterNegative();   // Filtro negativo
+            IFilter filter2 = new FilterGreyscale();  // Filtro escala de grises
 
-            // Crear los pipes en orden inverso
-            IPipe pipeNull = new PipeNull();                     // Último pipe que no hace nada
-            IPipe pipe2 = new PipeSerial(filter2, pipeNull);     // Segundo tramo
-            IPipe pipe1 = new PipeSerial(filter1, pipe2);        // Primer tramo
+            // Crear filtros de guardado para los pasos intermedios
+            IFilter saveStep1 = new FilterSave(@"C:\repos\PII_Pipes_Filters\paso1.jpg"); // Guarda después de filtro1
+            IFilter saveStep2 = new FilterSave(@"C:\repos\PII_Pipes_Filters\paso2.jpg"); // Guarda después de filtro2
 
-            // Ejecutar la secuencia de Pipes & Filters
-            IPicture result = pipe1.Send(picture);
+            //  Crear los pipes en orden inverso
+            IPipe pipeNull = new PipeNull();                       // Último pipe
+            IPipe pipe2 = new PipeSerial(filter2, pipeNull);       // Segundo filtro
+            IPipe pipeSave2 = new PipeSerial(saveStep2, pipe2);    // Guarda después del segundo filtro
+            IPipe pipe1 = new PipeSerial(filter1, pipeSave2);      // Primer filtro
+            IPipe pipeSave1 = new PipeSerial(saveStep1, pipe1);    // Guarda después del primer filtro
 
-            // Guardar el resultado final
-            provider.SavePicture(result, @"C:\repos\PII_Pipes_Filters\resultado.jpg");
+            // Ejecutar la secuencia completa
+            IPicture result = pipeSave1.Send(picture);
 
-            Console.WriteLine("Imagen procesada y guardada correctamente.");
+            // Guardar el resultado final también
+            provider.SavePicture(result, @"C:\repos\PII_Pipes_Filters\resultado_final.jpg");
+
+            Console.WriteLine("Procesamiento completado. Se guardaron los pasos intermedios y el resultado final.");
         }
     }
 }
