@@ -6,9 +6,6 @@ using System;
 namespace CompAndDel
 {
     /// <summary>
-    /// Esta clase permite leer y guardar imágenes desde archivos.
-    /// Compatible con .NET 6.0 y ImageSharp 2.1.3
-    /// </summary>
     public class PictureProvider
     {
         /// <summary>
@@ -20,7 +17,7 @@ namespace CompAndDel
         {
             Picture picture = new Picture(1, 1);
 
-            // Cargamos la imagen como Rgba32 (válido en ImageSharp 2.1.3)
+            
             using (Image<Rgba32> image = Image.Load<Rgba32>(path))
             {
                 picture.Resize(image.Width, image.Height);

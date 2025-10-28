@@ -29,7 +29,7 @@ namespace Program
             // Guardar el resultado final
             provider.SavePicture(result, @"C:\repos\PII_Pipes_Filters\resultado.jpg");
 
-            Console.WriteLine("✅ Imagen procesada y guardada correctamente.");
+            Console.WriteLine("Imagen procesada y guardada correctamente.");
         }
     }
 }
